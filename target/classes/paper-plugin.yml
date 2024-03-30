@@ -1,4 +1,4 @@
 name: Region
-version: '1.3'
+version: '1.4'
 main: com.mortisdevelopment.regionplugin.RegionPlugin
 api-version: '1.20'

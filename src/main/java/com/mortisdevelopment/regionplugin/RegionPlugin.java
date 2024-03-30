@@ -1,8 +1,8 @@
 package com.mortisdevelopment.regionplugin;
 
 import com.mortisdevelopment.regionplugin.databases.Database;
-import com.mortisdevelopment.regionplugin.region.RegionCommand;
-import com.mortisdevelopment.regionplugin.region.RegionListener;
+import com.mortisdevelopment.regionplugin.commands.RegionCommand;
+import com.mortisdevelopment.regionplugin.listeners.RegionListener;
 import com.mortisdevelopment.regionplugin.region.RegionManager;
 import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
@@ -21,7 +21,7 @@ public final class RegionPlugin extends JavaPlugin {
         // Plugin startup logic
         RegionManager regionManager = new RegionManager(getDatabase());
         getServer().getPluginManager().registerEvents(new RegionListener(this, regionManager), this);
-        getServer().getCommandMap().register("region", new RegionCommand(this, regionManager));
+        new RegionCommand(this, regionManager).register(this);
     }
 
     private Database getDatabase() {

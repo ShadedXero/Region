@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.mortisdevelopment.regionplugin.RegionPlugin;
 import com.mortisdevelopment.regionplugin.region.Region;
+import com.mortisdevelopment.regionplugin.region.RegionManager;
 import com.mysql.cj.jdbc.Driver;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -23,7 +24,6 @@ public class Database {
     private final String username;
     private final String password;
     private Connection connection;
-    private final Map<String, Region> regionByName;
 
     public Database(RegionPlugin plugin, String host, int port, String database, String username, String password) {
         this.plugin = plugin;
@@ -33,7 +33,6 @@ public class Database {
         this.username = username;
         this.password = password;
         this.connection = getConnection();
-        this.regionByName = new HashMap<>();
         initialize();
     }
 
@@ -71,13 +70,12 @@ public class Database {
                 } catch (SQLException exp) {
                     throw new RuntimeException(exp);
                 }
-                loadRegions();
             }
         }.runTaskAsynchronously(plugin);
     }
 
-    private void loadRegions() {
-        Database database = this;
+    public Map<String, Region> loadRegions(RegionManager regionManager) {
+        Map<String, Region> regionByName = new HashMap<>();
         try {
             Statement statement = getConnection().createStatement();
             ResultSet result = statement.executeQuery("SELECT * FROM Regions");
@@ -86,12 +84,13 @@ public class Database {
                 Location originLocation = getLocation(result.getString("origin_location"));
                 Location endLocation = getLocation(result.getString("end_location"));
                 ArrayList<UUID> whitelist = getWhitelist(result.getString("whitelist"));
-                Region region = new Region(database, name, originLocation, endLocation, whitelist);
+                Region region = new Region(regionManager, name, originLocation, endLocation, whitelist);
                 regionByName.put(name, region);
             }
         } catch (SQLException exp) {
             throw new RuntimeException(exp);
         }
+        return regionByName;
     }
 
     private Location getLocation(String location) {
@@ -125,14 +124,6 @@ public class Database {
         return joiner.toString();
     }
 
-    public List<Region> getRegions() {
-        return new ArrayList<>(regionByName.values());
-    }
-
-    public Region getRegion(String name) {
-        return regionByName.get(name);
-    }
-
     public void addRegion(Region region) {
         new BukkitRunnable() {
             @Override
@@ -147,7 +138,6 @@ public class Database {
                 } catch (SQLException exp) {
                     throw new RuntimeException(exp);
                 }
-                regionByName.put(region.getName(), region);
             }
         }.runTaskAsynchronously(plugin);
     }

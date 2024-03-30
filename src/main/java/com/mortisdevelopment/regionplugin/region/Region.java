@@ -1,6 +1,5 @@
 package com.mortisdevelopment.regionplugin.region;
 
-import com.mortisdevelopment.regionplugin.databases.Database;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -13,14 +12,14 @@ import java.util.UUID;
 public class Region {
 
     private final Permission permission = new Permission("region.bypass");
-    private final Database database;
+    private final RegionManager regionManager;
     private String name;
     private Location originLocation;
     private Location endLocation;
     private ArrayList<UUID> whitelist;
 
-    public Region(Database database, String name, Location originLocation, Location endLocation, ArrayList<UUID> whitelist) {
-        this.database = database;
+    public Region(RegionManager regionManager, String name, Location originLocation, Location endLocation, ArrayList<UUID> whitelist) {
+        this.regionManager = regionManager;
         this.name = name;
         this.originLocation = originLocation;
         this.endLocation = endLocation;
@@ -51,25 +50,25 @@ public class Region {
     }
 
     public void setName(String name) {
-        database.setName(this.name, name);
-        database.getRegionByName().remove(this.name);
-        database.getRegionByName().put(name, this);
+        regionManager.getDatabase().setName(this.name, name);
+        regionManager.getRegionByName().remove(name, this);
+        regionManager.getRegionByName().put(name, this);
         this.name = name;
     }
 
     public void setOriginLocation(Location originLocation) {
         this.originLocation = originLocation;
-        database.setOriginLocation(name, originLocation);
+        regionManager.getDatabase().setOriginLocation(name, originLocation);
     }
 
     public void setEndLocation(Location endLocation) {
         this.endLocation = endLocation;
-        database.setEndLocation(name, endLocation);
+        regionManager.getDatabase().setEndLocation(name, endLocation);
     }
 
     public void setWhitelist(ArrayList<UUID> whitelist) {
         this.whitelist = whitelist;
-        database.setWhitelist(name, whitelist);
+        regionManager.getDatabase().setWhitelist(name, whitelist);
     }
 
     public void addWhitelist(UUID player) {
@@ -77,11 +76,12 @@ public class Region {
             return;
         }
         whitelist.add(player);
-        database.setWhitelist(name, whitelist);
+        regionManager.getDatabase().setWhitelist(name, whitelist);
     }
 
     public void removeWhitelist(UUID player) {
-        whitelist.remove(player);
-        database.setWhitelist(name, whitelist);
+        if (whitelist.remove(player)) {
+            regionManager.getDatabase().setWhitelist(name, whitelist);
+        }
     }
 }

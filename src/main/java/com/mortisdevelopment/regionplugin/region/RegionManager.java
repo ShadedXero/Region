@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -16,11 +17,12 @@ import java.util.UUID;
 public class RegionManager {
 
     private final Database database;
-    private final Map<UUID, WandSelection> selectionByPlayer;
+    private final Map<UUID, WandSelection> selectionByPlayer = new HashMap<>();
+    private final Map<String, Region> regionByName;
 
     public RegionManager(Database database) {
         this.database = database;
-        this.selectionByPlayer = new HashMap<>();
+        this.regionByName = database.loadRegions(this);
     }
 
     public ItemStack getWandItem() {
@@ -35,12 +37,25 @@ public class RegionManager {
         return getWandItem().isSimilar(item);
     }
 
+    public void addRegion(Region region) {
+        regionByName.put(region.getName(), region);
+        database.addRegion(region);
+    }
+
     public Region getRegion(Location location) {
-        for (Region region : database.getRegions()) {
+        for (Region region : getRegions()) {
             if (region.isRegion(location)) {
                 return region;
             }
         }
         return null;
+    }
+
+    public Region getRegion(String name) {
+        return regionByName.get(name);
+    }
+
+    public Collection<Region> getRegions() {
+        return regionByName.values();
     }
 }
