@@ -61,17 +61,12 @@ public class Database {
     }
 
     private void initialize() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                try {
-                    Statement statement = getConnection().createStatement();
-                    statement.execute("CREATE TABLE IF NOT EXISTS Regions(name varchar(255) primary key, origin_location varchar(500), end_location varchar(500), whitelist varchar(1000))");
-                } catch (SQLException exp) {
-                    throw new RuntimeException(exp);
-                }
-            }
-        }.runTaskAsynchronously(plugin);
+        try {
+            Statement statement = getConnection().createStatement();
+            statement.execute("CREATE TABLE IF NOT EXISTS Regions(name varchar(255) primary key, origin_location varchar(500), end_location varchar(500), whitelist varchar(1000))");
+        } catch (SQLException exp) {
+            throw new RuntimeException(exp);
+        }
     }
 
     public Map<String, Region> loadRegions(RegionManager regionManager) {

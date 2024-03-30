@@ -51,7 +51,7 @@ public class Region {
 
     public void setName(String name) {
         regionManager.getDatabase().setName(this.name, name);
-        regionManager.getRegionByName().remove(name, this);
+        regionManager.getRegionByName().remove(this.name, this);
         regionManager.getRegionByName().put(name, this);
         this.name = name;
     }
