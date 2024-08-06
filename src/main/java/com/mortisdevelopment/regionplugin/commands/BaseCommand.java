@@ -1,9 +1,9 @@
 package com.mortisdevelopment.regionplugin.commands;
 
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public abstract class BaseCommand extends Command {
         this.subCommands.add(subCommand);
     }
 
-    public abstract boolean isSender(CommandSender sender);
+    public abstract boolean isSender(CommandSender sender, boolean silent);
 
     public abstract boolean onCommand(CommandSender sender, String label, String[] args);
 
@@ -44,7 +44,7 @@ public abstract class BaseCommand extends Command {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args) {
-        if (!isSender(sender)) {
+        if (!isSender(sender, false)) {
             return false;
         }
         if (onCommand(sender, label, args)) {
@@ -54,7 +54,7 @@ public abstract class BaseCommand extends Command {
     }
 
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String label, String[] args) {
-        if (!isSender(sender)) {
+        if (!isSender(sender, true)) {
             return super.tabComplete(sender, label, args);
         }
         List<String> tab = onTabComplete(sender, label, args);
@@ -68,8 +68,8 @@ public abstract class BaseCommand extends Command {
         return super.tabComplete(sender, label, args);
     }
 
-    public void register(JavaPlugin plugin) {
-        plugin.getServer().getCommandMap().register(getName(), this);
+    public void register() {
+        Bukkit.getServer().getCommandMap().register(getName(), this);
     }
 
     public boolean onSubCommand(CommandSender sender, String label, String[] args) {
@@ -80,7 +80,7 @@ public abstract class BaseCommand extends Command {
             if (!subCommand.isName(args[0])) {
                 continue;
             }
-            if (!isSender(sender)) {
+            if (!subCommand.isSender(sender, false)) {
                 continue;
             }
             if (subCommand.onCommand(sender, label, getNewArgs(args))) {
@@ -99,7 +99,7 @@ public abstract class BaseCommand extends Command {
             if (!subCommand.isName(args[0])) {
                 continue;
             }
-            if (!isSender(sender)) {
+            if (!subCommand.isSender(sender, true)) {
                 continue;
             }
             List<String> tab = subCommand.onTabComplete(sender, label, getNewArgs(args));
