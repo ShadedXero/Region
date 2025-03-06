@@ -2,5 +2,5 @@ database:
   host: localhost  # The address of the database server (use "localhost" if running on the same machine).
   port: 3306  # The port number for connecting to the database (default for MySQL and MariaDB).
   database: database  # The name of the database/schema the application will connect to.
-  username: user  
+  username: user  # The database username required for authentication.
   password: pass  
