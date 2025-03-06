@@ -3,4 +3,4 @@ database:
   port: 3306  # The port number for connecting to the database (default for MySQL and MariaDB).
   database: database  # The name of the database/schema the application will connect to.
   username: user  # The database username required for authentication.
-  password: pass  
+  password: pass  # The password for the database user (ensure this is kept secure).
